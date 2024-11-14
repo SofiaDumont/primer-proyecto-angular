@@ -11,7 +11,7 @@
         <div *ngFor="let fila of filas; let i = index" class="fila-tabla">
             <div>{{ fila.id }}</div>
             <div>
-                <span 
+                <span
                   [ngClass]="{ disponible: fila.deshabilitada, ocupado: !fila.deshabilitada }"
                   (click)="cambiarDisponibilidadCochera(fila)">
                   {{ fila.deshabilitada ? 'DISPONIBLE' : 'NO DISPONIBLE' }}
@@ -36,4 +36,3 @@
         </div>
     </section>
 </main>
-

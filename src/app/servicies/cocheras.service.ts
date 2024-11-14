@@ -10,7 +10,7 @@ export class CocherasService {
   private baseUrl = 'http://localhost:4000';
   constructor() { }
   auth = inject(AuthService);
-  
+
   cambiarDisponibilidadCochera(cochera: Cochera, opcion: string) {
     return fetch(`http://localhost:4000/cocheras/${cochera.id}`, {
       method: 'PATCH',
@@ -21,7 +21,7 @@ export class CocherasService {
       body: JSON.stringify({ deshabilitada: !cochera.deshabilitada })
     }).then(res => res.json());
   }
-  
+
   eliminarCochera(cocheraId: number) {
     return fetch(`http://localhost:4000/cocheras/${cocheraId}`, {
       method: "DELETE",
@@ -31,7 +31,7 @@ export class CocherasService {
     }).then(res => res.json());
   }
 
-  agregarCochera(nuevaCochera: Cochera) {
+  agregarCochera() {
     return fetch("http://localhost:4000/cocheras",{
       method: "POST",
       headers:{
@@ -41,7 +41,7 @@ export class CocherasService {
       body: JSON.stringify({ descripcion: "Agregada por api" })
     }).then(res => res.json());
   }
-  
+
   cargar() :Promise<Cochera[]>{
     return fetch("http://localhost:4000/cocheras",{
       method: "GET",
@@ -72,7 +72,7 @@ export class CocherasService {
   return fetch('http://localhost:4000/cocheras',{
     method: 'GET',
     headers: {
-      authorization: "Bearer" + (this.auth.getToken()?? ''),
+      authorization: "Bearer " + (this.auth.getToken()?? ''),
     },
   }).then(r=> r.json());
 }}

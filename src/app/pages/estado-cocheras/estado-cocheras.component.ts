@@ -41,7 +41,7 @@ export class EstadoCocherasComponent {
           this.filas.push({
             ...cochera,
             activo: estacionamiento,
-            deshabilitada: !estacionamiento, 
+            deshabilitada: !estacionamiento,
             patente: estacionamiento ? estacionamiento.patente : undefined,
             fechaIngreso: estacionamiento ? new Date(estacionamiento.horaIngreso).toLocaleDateString() : undefined,
             horaIngreso: estacionamiento ? new Date(estacionamiento.horaIngreso).toLocaleTimeString() : undefined,
@@ -64,26 +64,34 @@ export class EstadoCocherasComponent {
       }
     }).then((result) => {
       if (result.isConfirmed && result.value) {
-        const now = new Date();
+
+        this.cocherasService.agregarCochera().then((data) => {
+          const now = new Date();
         const nuevaCochera: Cochera = {
-          id: this.siguienteNumero,
-          descripcion: result.value, 
+          id: data.id,
+          descripcion: result.value,
           patente: result.value,
           deshabilitada: false,
           eliminada: false,
           activo: null,
-          fechaIngreso: now.toLocaleDateString(), 
-          horaIngreso: now.toLocaleTimeString(), 
+          fechaIngreso: now.toLocaleDateString(),
+          horaIngreso: now.toLocaleTimeString(),
         };
-        this.cocherasService.agregarCochera(nuevaCochera).then(() => {
           this.filas.push(nuevaCochera);
           this.siguienteNumero++;
+          this.estacionamientos.estacionarAuto(nuevaCochera.descripcion, data.id)
+
+
+
+
+
+
           Swal.fire('Fila agregada', 'La cochera ha sido registrada con éxito.', 'success');
       })
     }
     });
   }
-  
+
   eliminarFila(cocheraId: number) {
     Swal.fire({
       title: '¿Estás seguro?',
@@ -125,29 +133,17 @@ export class EstadoCocherasComponent {
               cochera.fechaIngreso = now.toLocaleDateString();
               cochera.horaIngreso = now.toLocaleTimeString();
               cochera.fechaDeshabilitado = undefined;
-              cochera.horaDeshabilitado = undefined;                
-                           Swal.fire('Patente registrada', 'La cochera ahora está ocupada.', 'success');   
+              cochera.horaDeshabilitado = undefined;
+                           Swal.fire('Patente registrada', 'La cochera ahora está ocupada.', 'success');
             }).catch(error => {
               console.error("Error al ocupar la cochera:", error);
               Swal.fire("Error", "Hubo un problema al ocupar la cochera en el sistema.", "error");
             });
           }
       });
-    } else {
-      this.estacionamientos.liberarCochera(cochera.id).then(() => {
-        cochera.deshabilitada = true;
-        cochera.patente = undefined;
-        cochera.fechaDeshabilitado = now.toLocaleDateString();
-        cochera.horaDeshabilitado = now.toLocaleTimeString(); 
-  
-        Swal.fire('Cochera liberada', 'La cochera ahora está disponible.', 'success');
-      }).catch((error: any) => {
-        console.error("Error al liberar la cochera", error);
-        Swal.fire("Error", "Hubo un problema al liberar la cochera en el sistema.", "error");
-      });
     }
   }
-  
+
   cobrarEstacionamiento(idCochera: number) {
     this.estacionamientos.buscarEstacionamientoActivo(idCochera).then(estacionamiento => {
       if (!estacionamiento) {
@@ -158,9 +154,9 @@ export class EstadoCocherasComponent {
         });
         return;
       }
-  
+
       const horaIngreso = new Date(estacionamiento.horaIngreso);
-      console.log("Hora de ingreso:", horaIngreso);  
+      console.log("Hora de ingreso:", horaIngreso);
 
     if (isNaN(horaIngreso.getTime())) {
       Swal.fire({
@@ -173,8 +169,8 @@ export class EstadoCocherasComponent {
       const tiempoTranscurridoMs = new Date().getTime() - horaIngreso.getTime();
       const horas = Math.floor(tiempoTranscurridoMs / (1000 * 60 * 60));
       const minutos = Math.floor((tiempoTranscurridoMs % (1000 * 60 * 60)) / (1000 * 60));
-      const precio = (tiempoTranscurridoMs / 1000 / 60 / 60); 
-  
+      const precio = (tiempoTranscurridoMs / 1000 / 60 / 60);
+
       Swal.fire({
         title: "Cobrar estacionamiento",
         text: `Tiempo transcurrido: ${horas}hs ${minutos}mins - Precio: $${precio.toFixed(2)}`,
@@ -188,7 +184,7 @@ export class EstadoCocherasComponent {
         if (result.isConfirmed) {
           this.estacionamientos.cobrarEstacionamiento(idCochera, estacionamiento.patente, precio).then(() => {
             Swal.fire("Estacionamiento cobrado", "El estacionamiento ha sido cobrado correctamente.", "success");
-            this.traerCocheras(); 
+            this.traerCocheras();
           }).catch((error: any) => {
             console.error("Error al cobrar el estacionamiento:", error);
             Swal.fire("Error", "Hubo un error al cobrar el estacionamiento.", "error");
@@ -203,6 +199,5 @@ export class EstadoCocherasComponent {
         icon: "error"
       });
     });
-  }  
+  }
 }
-
