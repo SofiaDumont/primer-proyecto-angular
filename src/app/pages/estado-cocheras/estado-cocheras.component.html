@@ -1,38 +1,72 @@
 <app-header></app-header>
 <main>
-    <section id="tabla">
-        <div id="header-tabla">
-            <div>{{ header.nro }}</div>
-            <div>{{ header.deshabilitada }}</div>
-            <div>{{ header.ingreso }}</div>
-            <div>{{ header.acciones }}</div>
-        </div>
+  <section id="tabla">
+    <div id="header-tabla">
+      <div>{{ header.nro }}</div>
+      <div>{{ header.deshabilitada }}</div>
+      <div>{{ header.ingreso }}</div>
+      <div>{{ header.acciones }}</div>
+    </div>
 
-        <div *ngFor="let fila of filas; let i = index" class="fila-tabla">
-            <div>{{ fila.id }}</div>
-            <div>
-                <span
-                  [ngClass]="{ disponible: fila.deshabilitada, ocupado: !fila.deshabilitada }"
-                  (click)="cambiarDisponibilidadCochera(fila)">
-                  {{ fila.deshabilitada ? 'DISPONIBLE' : 'NO DISPONIBLE' }}
-                </span>
-            </div>
-            <div *ngIf="!fila.deshabilitada && fila.patente" class="informacion-patente-ingreso">
-                <div class="patente">Patente: {{ fila.patente }}</div>
-                <div class="ingreso">Ingreso: {{ fila.fechaIngreso }} {{ fila.horaIngreso }}</div>
-            </div>
-            <div *ngIf="!fila.deshabilitada && fila.fechaDeshabilitado" class="informacion-patente-ingreso">
-                <div class="deshabilitado">Deshabilitado: {{ fila.fechaDeshabilitado }} {{ fila.horaDeshabilitado }}</div>
-            </div>
-            <div class="acciones-container">
-                <button (click)="cambiarDisponibilidadCochera(fila)" [disabled]="fila.patente" [ngClass]="{ 'button-disabled': fila.patente }">🚫</button>
-                <button (click)="eliminarFila(fila.id)" class="boton-eliminar">🗑</button>
-                <button *ngIf="!fila.deshabilitada && fila.descripcion !== 'Disponible'"(click)="cobrarEstacionamiento(fila.id)" class="boton-eliminar">💸</button>
-            </div>
+    <div (click)="cambiarDisponibilidadCochera(fila)" *ngFor="let fila of filas; let i = index" class="fila-tabla">
+      <div>{{ fila.id }}</div>
+      <div>
+        <span
+          [ngClass]="{
+            disponible: !fila.activo || !fila.deshabilitada,
+            ocupado: fila.activo || fila.deshabilitada
+          }"
+        >
+          {{ !fila.activo && !fila.deshabilitada ? "DISPONIBLE" : "NO DISPONIBLE" }}
+        </span>
+      </div>
+      <div
+        *ngIf="!fila.deshabilitada && fila.patente"
+        class="informacion-patente-ingreso"
+      >
+        <div class="patente">Patente: {{ fila.patente }}</div>
+        <div class="ingreso">
+          Ingreso: {{ fila.fechaIngreso }} {{ fila.horaIngreso }}
         </div>
+      </div>
+      <div
+        *ngIf="!fila.deshabilitada && fila.fechaDeshabilitado"
+        class="informacion-patente-ingreso"
+      >
+        <div class="deshabilitado">
+          Deshabilitado: {{ fila.fechaDeshabilitado }}
+          {{ fila.horaDeshabilitado }}
+        </div>
+      </div>
+      <div (click)="$event.stopPropagation()" class="acciones-container">
+        <button
+          (click)="cambiarEstadoCochera(fila)"
 
-        <div class="boton-agregar-fila">
-            <button (click)="agregarFila()" class="boton-resaltado">+</button>
-        </div>
-    </section>
+          *ngIf="!fila.activo"
+        >
+          {{!fila.deshabilitada ? '🚫' : '✔'}}
+
+        </button>
+        <button
+          (click)="eliminarFila(fila.id)"
+          [disabled]="fila.patente"
+          class="boton-eliminar"
+          *ngIf="!fila.activo"
+        >
+          🗑
+        </button>
+        <button
+          *ngIf="fila.activo"
+          (click)="cobrarEstacionamiento(fila.id)"
+          class="boton-eliminar"
+        >
+          💸
+        </button>
+      </div>
+    </div>
+
+    <div class="boton-agregar-fila">
+      <button (click)="agregarFila()" class="boton-resaltado">+</button>
+    </div>
+  </section>
 </main>

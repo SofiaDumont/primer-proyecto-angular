@@ -28,14 +28,19 @@ export class LoginComponent implements OnInit {
   Login() {
     console.log("Login");
     this.auth.Login(this.datosLogin)
-        if (this.datosLogin.username === 'admin' && this.datosLogin.password === 'admin') {
+    .then((response) => {
+        if (response) {
           this.router.navigate(['/estado-cocheras']);
         } else {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Credenciales incorrectas',
-          });
+          throw new Error('Credenciales incorrectas');
         }
-      }
-    }
+      })
+      .catch((error) => {
+        console.error(error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Credenciales incorrectas',
+        });
+      });
+    }}
